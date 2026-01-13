@@ -10,23 +10,25 @@ interface ModeSelectorProps {
 
 const ModeSelector: React.FC<ModeSelectorProps> = ({ activeMode, onSelect }) => {
   return (
-    <div className="flex overflow-x-auto pb-4 md:pb-0 no-scrollbar md:flex-wrap gap-2 md:gap-3 mb-6 md:mb-10 px-2 justify-start md:justify-center">
-      {MODES.map((mode) => (
-        <button
-          key={mode.id}
-          onClick={() => onSelect(mode.id)}
-          className={`
-            flex-shrink-0 flex items-center gap-2 px-4 md:px-5 py-2 md:py-2.5 rounded-2xl border-2 transition-all duration-200 text-xs md:text-sm font-semibold
-            ${activeMode === mode.id 
-              ? `${mode.bgColor} ${mode.borderColor} ${mode.color} scale-105 shadow-md ring-2 ring-offset-2 dark:ring-offset-slate-900 ring-slate-100 dark:ring-slate-800` 
-              : 'bg-white dark:bg-slate-900 border-transparent text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
-            }
-          `}
-        >
-          <span className="text-lg md:text-xl">{mode.icon}</span>
-          {mode.label}
-        </button>
-      ))}
+    <div className="flex overflow-x-auto pb-4 md:pb-0 no-scrollbar md:flex-wrap gap-3 mb-12 px-2 justify-start md:justify-center">
+      <div className="flex p-1.5 bg-slate-100 dark:bg-slate-900/60 rounded-[1.25rem] border border-slate-200 dark:border-slate-800 shadow-inner">
+        {MODES.map((mode) => (
+          <button
+            key={mode.id}
+            onClick={() => onSelect(mode.id)}
+            className={`
+              flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-xl transition-all duration-500 text-xs font-black uppercase tracking-widest
+              ${activeMode === mode.id 
+                ? `bg-white dark:bg-slate-800 text-indigo-600 dark:text-white shadow-premium dark:shadow-premium-dark border border-slate-100 dark:border-slate-700 scale-105` 
+                : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+              }
+            `}
+          >
+            <span className={`text-base transition-transform duration-500 ${activeMode === mode.id ? 'scale-125' : 'grayscale opacity-50'}`}>{mode.icon}</span>
+            <span className="hidden sm:inline">{mode.label}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
