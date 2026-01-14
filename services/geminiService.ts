@@ -1,7 +1,7 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { SYSTEM_PROMPT, MODE_MAPPING, DETECTION_PROMPT } from "../constants";
-import { HumanizationMode } from "../types";
+import { SYSTEM_PROMPT, MODE_MAPPING, DETECTION_PROMPT, SEARCH_PROMPT } from "../constants";
+import { AppMode, GroundingSource } from "../types";
 
 export interface AIDetectionResult {
   score: number;
@@ -9,8 +9,13 @@ export interface AIDetectionResult {
   reasoning: string;
 }
 
-export const humanizeText = async (text: string, mode: HumanizationMode): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+export interface ServiceResult {
+    text: string;
+    sources: GroundingSource[];
+}
+
+export const humanizeText = async (text: string, mode: AppMode): Promise<ServiceResult> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const selectedModeLabel = MODE_MAPPING[mode];
   
   const prompt = `
@@ -32,17 +37,45 @@ export const humanizeText = async (text: string, mode: HumanizationMode): Promis
         temperature: 0.9,
         topP: 0.95,
       },
+      tools: [{googleSearch: {}}],
     });
 
-    return response.text?.trim() || "Ocorreu um erro ao gerar o texto.";
+    const humanizedText = response.text?.trim() || "Ocorreu um erro ao gerar o texto.";
+    const sources = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+
+    return { text: humanizedText, sources };
   } catch (error) {
     console.error("Gemini API Error:", error);
     throw new Error("Falha na comunicação com o cérebro da IA.");
   }
 };
 
+export const searchWithGoogle = async (query: string): Promise<ServiceResult> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: query,
+      config: {
+        systemInstruction: SEARCH_PROMPT,
+      },
+      tools: [{googleSearch: {}}],
+    });
+
+    const summaryText = response.text?.trim() || "Não foi possível gerar um resumo.";
+    const sources = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+    
+    return { text: summaryText, sources };
+  } catch (error) {
+    console.error("Google Search Error:", error);
+    throw new Error("Falha ao realizar a pesquisa no Google.");
+  }
+};
+
+
 export const detectAI = async (text: string): Promise<AIDetectionResult> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
   try {
     const response = await ai.models.generateContent({
@@ -72,7 +105,7 @@ export const detectAI = async (text: string): Promise<AIDetectionResult> => {
 };
 
 export const extractTextFromImage = async (base64Image: string, mimeType: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   try {
     const response = await ai.models.generateContent({

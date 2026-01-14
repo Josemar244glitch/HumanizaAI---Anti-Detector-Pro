@@ -1,11 +1,11 @@
 
 import React from 'react';
 import { MODES } from '../constants';
-import { HumanizationMode } from '../types';
+import { AppMode } from '../types';
 
 interface ModeSelectorProps {
-  activeMode: HumanizationMode;
-  onSelect: (mode: HumanizationMode) => void;
+  activeMode: AppMode;
+  onSelect: (mode: AppMode) => void;
 }
 
 const ModeSelector: React.FC<ModeSelectorProps> = ({ activeMode, onSelect }) => {

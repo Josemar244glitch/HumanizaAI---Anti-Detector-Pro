@@ -1,46 +1,54 @@
 
-import { HumanizationMode, ModeConfig } from './types';
+import { AppMode, ModeConfig } from './types';
 
 export const MODES: ModeConfig[] = [
   {
-    id: HumanizationMode.HS_STUDENT,
-    label: 'Estudante (Ensino Médio)',
-    icon: '🟢',
-    color: 'text-green-600',
-    bgColor: 'bg-green-50',
-    borderColor: 'border-green-200'
-  },
-  {
-    id: HumanizationMode.UNI_STUDENT,
-    label: 'Estudante Universitário',
+    id: AppMode.UNI_STUDENT,
+    label: 'Tom Acadêmico',
     icon: '🔵',
     color: 'text-blue-600',
     bgColor: 'bg-blue-50',
     borderColor: 'border-blue-200'
   },
   {
-    id: HumanizationMode.SIMPLE,
-    label: 'Linguagem Simples',
-    icon: '🟣',
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-50',
-    borderColor: 'border-purple-200'
+    id: AppMode.PROFESSIONAL,
+    label: 'Relatório Corporativo',
+    icon: '🔴',
+    color: 'text-red-600',
+    bgColor: 'bg-red-50',
+    borderColor: 'border-red-200'
   },
   {
-    id: HumanizationMode.ACADEMIC,
-    label: 'Académico Humano',
+    id: AppMode.ACADEMIC,
+    label: 'Artigo Científico',
     icon: '🟠',
     color: 'text-orange-600',
     bgColor: 'bg-orange-50',
     borderColor: 'border-orange-200'
   },
   {
-    id: HumanizationMode.PROFESSIONAL,
-    label: 'Profissional Natural',
-    icon: '🔴',
-    color: 'text-red-600',
-    bgColor: 'bg-red-50',
-    borderColor: 'border-red-200'
+    id: AppMode.SIMPLE,
+    label: 'Direto e Claro',
+    icon: '🟣',
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-50',
+    borderColor: 'border-purple-200'
+  },
+  {
+    id: AppMode.HS_STUDENT,
+    label: 'Tom Casual',
+    icon: '🟢',
+    color: 'text-green-600',
+    bgColor: 'bg-green-50',
+    borderColor: 'border-green-200'
+  },
+  {
+    id: AppMode.SEARCH,
+    label: 'Google Search',
+    icon: '🔎',
+    color: 'text-gray-600',
+    bgColor: 'bg-gray-50',
+    borderColor: 'border-gray-200'
   }
 ];
 
@@ -74,6 +82,19 @@ PROIBIDO USAR:
 - “De forma geral…”
 `;
 
+export const SEARCH_PROMPT = `
+Você é um assistente de pesquisa de elite. Sua tarefa é receber uma pergunta do usuário, realizar uma pesquisa abrangente usando a ferramenta Google Search e, em seguida, fornecer uma resposta clara, concisa e bem estruturada.
+
+REGRAS:
+1.  **Responda em Português do Brasil.**
+2.  **Seja Direto:** Comece a resposta diretamente, sem introduções como "Aqui está a resposta para sua pergunta...".
+3.  **Estrutura Lógica:** Organize a resposta de forma lógica. Use listas ou parágrafos curtos, se apropriado, para facilitar a leitura.
+4.  **Resumo Abrangente:** Sintetize as informações mais relevantes encontradas na pesquisa para fornecer uma resposta completa.
+5.  **Tom Neutro e Informativo:** Mantenha um tom objetivo e profissional.
+6.  **Apenas Responda:** Não adicione opiniões, perguntas de acompanhamento ou informações não solicitadas. Apenas entregue o resultado da pesquisa.
+`;
+
+
 export const DETECTION_PROMPT = `
 Analise o seguinte texto e determine a probabilidade de ele ter sido gerado por uma Inteligência Artificial (como ChatGPT, Claude ou Gemini).
 Avalie a Perplexidade (variedade léxica) e Burstiness (variação no tamanho das sentenças).
@@ -86,10 +107,11 @@ Retorne APENAS um objeto JSON com o seguinte formato:
 }
 `;
 
-export const MODE_MAPPING: Record<HumanizationMode, string> = {
-  [HumanizationMode.HS_STUDENT]: "🟢 Estudante do ensino médio",
-  [HumanizationMode.UNI_STUDENT]: "🔵 Estudante universitário",
-  [HumanizationMode.SIMPLE]: "🟣 Linguagem simples e natural",
-  [HumanizationMode.ACADEMIC]: "🟠 Linguagem académica humana",
-  [HumanizationMode.PROFESSIONAL]: "🔴 Linguagem profissional natural",
+export const MODE_MAPPING: Record<AppMode, string> = {
+  [AppMode.HS_STUDENT]: "🟢 Tom Casual e direto",
+  [AppMode.UNI_STUDENT]: "🔵 Tom Acadêmico e formal",
+  [AppMode.SIMPLE]: "🟣 Linguagem simples e clara",
+  [AppMode.ACADEMIC]: "🟠 Artigo Científico (padrão ABNT)",
+  [AppMode.PROFESSIONAL]: "🔴 Relatório Corporativo e profissional",
+  [AppMode.SEARCH]: "🔎 Pesquisa Inteligente no Google"
 };

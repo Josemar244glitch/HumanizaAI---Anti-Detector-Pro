@@ -1,14 +1,15 @@
 
-export enum HumanizationMode {
+export enum AppMode {
   HS_STUDENT = 'HS_STUDENT',
   UNI_STUDENT = 'UNI_STUDENT',
   SIMPLE = 'SIMPLE',
   ACADEMIC = 'ACADEMIC',
-  PROFESSIONAL = 'PROFESSIONAL'
+  PROFESSIONAL = 'PROFESSIONAL',
+  SEARCH = 'SEARCH'
 }
 
 export interface ModeConfig {
-  id: HumanizationMode;
+  id: AppMode;
   label: string;
   icon: string;
   color: string;
@@ -16,9 +17,16 @@ export interface ModeConfig {
   borderColor: string;
 }
 
-export interface HumanizationResult {
+export interface ServiceResult {
   original: string;
   humanized: string;
   timestamp: number;
-  mode: HumanizationMode;
+  mode: AppMode;
+}
+
+export interface GroundingSource {
+  web?: {
+    uri: string;
+    title: string;
+  };
 }

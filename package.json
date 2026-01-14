@@ -1,5 +1,5 @@
 {
-  "name": "copy-of-humanizaai---anti-detector-de-ia-pro",
+  "name": "humanizaai-pro-|-by-josé-bonifácio",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,7 +11,9 @@
   "dependencies": {
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
-    "@google/genai": "^1.35.0"
+    "@google/genai": "^1.4.0",
+    "@supabase/supabase-js": "2.48.1",
+    "dexie": "^3.2.4"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
