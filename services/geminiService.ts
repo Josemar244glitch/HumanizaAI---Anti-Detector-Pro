@@ -65,7 +65,7 @@ export const searchWithGoogle = async (query: string): Promise<ServiceResult> =>
   
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-3-pro-preview',
       contents: query,
       config: {
         systemInstruction: SEARCH_PROMPT,
@@ -119,7 +119,7 @@ export const extractTextFromImage = async (base64Image: string, mimeType: string
   
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+      model: 'gemini-3-pro-preview',
       contents: {
         parts: [
           {
