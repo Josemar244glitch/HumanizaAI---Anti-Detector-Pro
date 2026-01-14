@@ -14,8 +14,16 @@ export interface ServiceResult {
     sources: GroundingSource[];
 }
 
+const getAiClient = (): GoogleGenAI => {
+    const apiKey = sessionStorage.getItem('gemini_api_key');
+    if (!apiKey) {
+        throw new Error("A chave de API do Google Gemini não foi configurada.");
+    }
+    return new GoogleGenAI({ apiKey });
+};
+
 export const humanizeText = async (text: string, mode: AppMode): Promise<ServiceResult> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = getAiClient();
   const selectedModeLabel = MODE_MAPPING[mode];
   
   const prompt = `
@@ -51,7 +59,7 @@ export const humanizeText = async (text: string, mode: AppMode): Promise<Service
 };
 
 export const searchWithGoogle = async (query: string): Promise<ServiceResult> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = getAiClient();
   
   try {
     const response = await ai.models.generateContent({
@@ -75,7 +83,7 @@ export const searchWithGoogle = async (query: string): Promise<ServiceResult> =>
 
 
 export const detectAI = async (text: string): Promise<AIDetectionResult> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = getAiClient();
 
   try {
     const response = await ai.models.generateContent({
@@ -105,7 +113,7 @@ export const detectAI = async (text: string): Promise<AIDetectionResult> => {
 };
 
 export const extractTextFromImage = async (base64Image: string, mimeType: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = getAiClient();
   
   try {
     const response = await ai.models.generateContent({

@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Header from './Header';
 import ModeSelector from './ModeSelector';
 import Login from './Login';
+import ApiKeySetup from './ApiKeySetup';
 import CameraView from './CameraView';
 import { AppMode, GroundingSource } from '../types';
 import { humanizeText, searchWithGoogle, detectAI, extractTextFromImage, AIDetectionResult } from '../services/geminiService';
@@ -22,6 +23,7 @@ const App: React.FC = () => {
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
   const [detectionResult, setDetectionResult] = useState<AIDetectionResult | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [apiKey, setApiKey] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -43,6 +45,11 @@ const App: React.FC = () => {
       document.documentElement.classList.add('dark');
     }
 
+    const storedApiKey = sessionStorage.getItem('gemini_api_key');
+    if (storedApiKey) {
+        setApiKey(storedApiKey);
+    }
+
     if (isSupabaseConfigured()) {
       authService.getSession().then((session) => {
         if (session?.user) setUser(session.user);
@@ -56,6 +63,11 @@ const App: React.FC = () => {
       if (localUser) setUser(JSON.parse(localUser));
     }
   }, []);
+  
+  const handleApiKeySet = (key: string) => {
+    sessionStorage.setItem('gemini_api_key', key);
+    setApiKey(key);
+  };
 
   const toggleDarkMode = () => {
     const newMode = !isDarkMode;
@@ -250,6 +262,10 @@ const App: React.FC = () => {
   };
   
   const isSearchMode = activeMode === AppMode.SEARCH;
+  
+  if (!apiKey) {
+    return <ApiKeySetup onApiKeySet={handleApiKeySet} />;
+  }
 
   if (!user) return <Login onLogin={setUser} />;
 
