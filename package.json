@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "react": "^19.2.3",
-    "react-dom": "^19.2.3",
     "@google/genai": "^1.4.0",
     "@supabase/supabase-js": "2.48.1",
-    "dexie": "^3.2.4"
+    "dexie": "^3.2.4",
+    "react-dom": "^19.2.3"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
