@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
+import { authService, isSupabaseConfigured } from '../services/supabaseClient';
 
 interface LoginProps {
   onLogin: (user: any) => void;
@@ -33,14 +33,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
     try {
       if (isLogin) {
-        const { data, error } = await supabase!.auth.signInWithPassword({
+        const { data, error } = await authService.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
         if (data.user) onLogin(data.user);
       } else {
-        const { data, error } = await supabase!.auth.signUp({
+        const { data, error } = await authService.signUp({
           email,
           password,
         });
@@ -63,10 +63,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     }
     setLoading(true);
     try {
-      const { error } = await supabase!.auth.signInWithOAuth({
-        provider,
-        options: { redirectTo: window.location.origin }
-      });
+      const { error } = await authService.signInWithOAuth(provider);
       if (error) throw error;
     } catch (err: any) {
       setErrorMsg(err.message || `Erro ao entrar com ${provider}`);
@@ -81,14 +78,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-500/20 blur-[120px] rounded-full"></div>
       </div>
 
-      <div className="max-w-md w-full bg-white dark:bg-slate-900 p-8 md:p-12 rounded-[4rem] shadow-premium border border-slate-200 dark:border-slate-800 transition-all duration-500 relative z-10">
+      <div className="max-w-md w-full bg-white dark:bg-slate-900 p-8 sm:p-12 rounded-3xl md:rounded-[4rem] shadow-premium border border-slate-200 dark:border-slate-800 transition-all duration-500 relative z-10">
         <div className="text-center mb-10">
-          <div className="w-24 h-24 bg-indigo-600 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-indigo-600/30 mx-auto mb-8 animate-float">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 bg-indigo-600 rounded-3xl sm:rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-indigo-600/30 mx-auto mb-8 animate-float">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 sm:h-12 sm:w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
           </div>
-          <h2 className="text-4xl font-black font-header dark:text-white tracking-tighter">
+          <h2 className="text-3xl sm:text-4xl font-black font-header dark:text-white tracking-tighter">
             {isLogin ? 'HumanizaAI Pro' : 'Crie sua Conta'}
           </h2>
           <p className="text-slate-500 dark:text-slate-400 mt-3 text-base font-medium">

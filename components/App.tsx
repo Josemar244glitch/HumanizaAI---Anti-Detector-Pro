@@ -7,7 +7,7 @@ import CameraView from './CameraView';
 import { AppMode, GroundingSource } from '../types';
 import { humanizeText, searchWithGoogle, detectAI, extractTextFromImage, AIDetectionResult } from '../services/geminiService';
 import { MODES } from '../constants';
-import { supabase, isSupabaseConfigured } from '../services/supabaseClient';
+import { authService, isSupabaseConfigured } from '../services/supabaseClient';
 import { dbService, HistoryItem } from '../services/dbService';
 
 const App: React.FC = () => {
@@ -44,15 +44,13 @@ const App: React.FC = () => {
     }
 
     if (isSupabaseConfigured()) {
-      supabase!.auth.getSession().then(({ data: { session } }) => {
+      authService.getSession().then((session) => {
         if (session?.user) setUser(session.user);
       });
 
-      const { data: { subscription } } = supabase!.auth.onAuthStateChange((_event, session) => {
-        setUser(session?.user ?? null);
-      });
+      const { unsubscribe } = authService.onAuthStateChange(setUser);
 
-      return () => subscription.unsubscribe();
+      return () => unsubscribe();
     } else {
       const localUser = localStorage.getItem('humaniza_local_user');
       if (localUser) setUser(JSON.parse(localUser));
@@ -68,7 +66,7 @@ const App: React.FC = () => {
 
   const handleLogout = async () => {
     if (isSupabaseConfigured()) {
-      await supabase!.auth.signOut();
+      await authService.signOut();
     }
     localStorage.removeItem('humaniza_local_user');
     setUser(null);
@@ -272,7 +270,7 @@ const App: React.FC = () => {
       <div className={`fixed inset-0 z-[200] transition-opacity duration-300 ${isHistoryOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-md" onClick={() => setIsHistoryOpen(false)}></div>
         <div className={`absolute top-0 right-0 h-full w-full max-w-lg bg-white dark:bg-slate-900 shadow-3xl transition-transform duration-500 transform ${isHistoryOpen ? 'translate-x-0' : 'translate-x-full'} flex flex-col`}>
-          <div className="p-8 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+          <div className="p-6 md:p-8 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
             <div>
               <h3 className="text-xl font-black font-header dark:text-white uppercase tracking-tighter">Fluxo de Atividade</h3>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
@@ -293,7 +291,7 @@ const App: React.FC = () => {
               </button>
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto p-8 space-y-6 no-scrollbar">
+          <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6 no-scrollbar">
             {isLoadingHistory ? (
               <div className="flex flex-col items-center justify-center h-full space-y-4">
                 <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
@@ -378,21 +376,21 @@ const App: React.FC = () => {
                   </div>
                 )}
                 {imagePreview && !isExtracting && (
-                  <div className="absolute top-8 right-8 w-32 h-32 rounded-3xl border-4 border-indigo-500 shadow-2xl z-10 overflow-hidden group">
+                  <div className="absolute top-4 right-4 w-24 h-24 md:w-32 md:h-32 rounded-3xl border-4 border-indigo-500 shadow-2xl z-10 overflow-hidden group">
                     <img src={imagePreview} className="w-full h-full object-cover" />
                     <button onClick={() => setImagePreview(null)} className="absolute inset-0 bg-red-600/60 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor"><path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" /></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 md:h-8 md:w-8" viewBox="0 0 20 20" fill="currentColor"><path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" /></svg>
                     </button>
                   </div>
                 )}
                 <textarea 
-                  className="w-full h-full p-10 bg-[#0a0f1e] text-slate-100 font-mono text-lg leading-relaxed resize-none focus:outline-none placeholder:text-slate-700" 
+                  className="w-full h-full p-6 md:p-10 bg-[#0a0f1e] text-slate-100 font-mono text-base md:text-lg leading-relaxed resize-none focus:outline-none placeholder:text-slate-700" 
                   placeholder={isSearchMode ? "Digite sua pergunta para pesquisar no Google..." : "Cole aqui o texto gerado pela IA..."} 
                   value={inputText} 
                   onChange={(e) => setInputText(e.target.value)} 
                 />
               </div>
-              <div className="p-8 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <div className="p-6 md:p-8 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
                 <button onClick={() => setInputText('')} className="text-[11px] font-black uppercase text-slate-400 hover:text-slate-900 transition-all tracking-widest">Resetar</button>
                 <button 
                   onClick={handleProcessAction} 
@@ -428,7 +426,7 @@ const App: React.FC = () => {
                     </p>
                   </div>
                 )}
-                <textarea readOnly className={`w-full h-full p-10 bg-[#0a0f1e] text-slate-100 font-mono text-lg leading-relaxed resize-none focus:outline-none ${!outputText ? 'hidden' : 'block animate-fade-in'}`} value={outputText} />
+                <textarea readOnly className={`w-full h-full p-6 md:p-10 bg-[#0a0f1e] text-slate-100 font-mono text-base md:text-lg leading-relaxed resize-none focus:outline-none ${!outputText ? 'hidden' : 'block animate-fade-in'}`} value={outputText} />
                 {!outputText && !isLoading && (
                   <div className="h-full flex flex-col items-center justify-center text-slate-400 p-12 opacity-20 select-none">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
@@ -437,7 +435,7 @@ const App: React.FC = () => {
                 )}
               </div>
               {outputText && (
-                <div className="p-8 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                <div className="p-6 md:p-8 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex justify-end">
                   <button 
                     onClick={copyToClipboard} 
                     className={`px-10 py-5 rounded-2xl font-black text-xs uppercase border-2 transition-all active:scale-95 ${copyStatus === 'copied' ? 'bg-emerald-600 text-white border-emerald-600 shadow-emerald-500/40' : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-indigo-600 hover:shadow-xl'}`}
@@ -453,7 +451,7 @@ const App: React.FC = () => {
         {/* Fontes da Pesquisa */}
         {sources.length > 0 && (
           <div className="mb-20 animate-slide-up">
-            <div className="bg-slate-50 dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-200 dark:border-slate-800">
+            <div className="bg-slate-50 dark:bg-slate-900 rounded-[3rem] p-6 md:p-10 border border-slate-200 dark:border-slate-800">
               <h4 className="text-indigo-600 dark:text-indigo-400 font-black uppercase text-xs mb-6 tracking-[0.4em] flex items-center gap-3">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                 Fontes da Pesquisa Utilizadas
@@ -474,9 +472,9 @@ const App: React.FC = () => {
         {detectionResult && (
           <div className="mb-20 animate-slide-up">
             <div className="bg-slate-900 rounded-[3rem] p-10 md:p-14 border border-indigo-500/30 shadow-3xl text-white flex flex-col md:flex-row items-center gap-10">
-              <div className="w-40 h-40 rounded-full border-8 border-slate-800 flex items-center justify-center relative">
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-8 border-slate-800 flex items-center justify-center relative">
                 <div className="absolute inset-0 rounded-full border-8 border-indigo-500 border-t-transparent animate-spin-slow"></div>
-                <span className="text-4xl font-black">{detectionResult.score}%</span>
+                <span className="text-3xl md:text-4xl font-black">{detectionResult.score}%</span>
               </div>
               <div className="flex-1 text-center md:text-left">
                 <h4 className="text-indigo-400 font-black uppercase text-xs mb-2 tracking-[0.4em]">Diagnóstico de Probabilidade</h4>
@@ -524,8 +522,8 @@ const App: React.FC = () => {
         </section>
 
         {error && (
-          <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[300] bg-red-600 text-white px-10 py-5 rounded-full shadow-[0_20px_60px_rgba(220,38,38,0.5)] flex items-center gap-6 animate-slide-up">
-            <span className="font-black text-xs uppercase tracking-widest">{error}</span>
+          <div className="fixed bottom-6 inset-x-4 sm:bottom-12 sm:left-1/2 sm:-translate-x-1/2 sm:w-auto sm:max-w-xl sm:inset-x-auto z-[300] bg-red-600 text-white px-6 py-4 md:px-8 md:py-5 rounded-2xl md:rounded-full shadow-[0_20px_60px_rgba(220,38,38,0.5)] flex items-center gap-4 animate-slide-up">
+            <span className="font-black text-xs uppercase tracking-widest flex-1">{error}</span>
             <button onClick={() => setError(null)} className="p-2 hover:bg-white/10 rounded-full transition-colors"><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" /></svg></button>
           </div>
         )}

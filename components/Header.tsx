@@ -11,7 +11,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ isDarkMode, toggleDarkMode, user, onLogout, onOpenHistory }) => {
   return (
-    <header className="sticky top-0 z-[100] w-full py-4 px-6 border-b border-slate-200/50 dark:border-slate-800/50 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl">
+    <header className="sticky top-0 z-[100] w-full py-4 px-4 sm:px-6 border-b border-slate-200/50 dark:border-slate-800/50 bg-white/70 dark:bg-slate-950/70 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-4 group cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
           <div className="relative">
