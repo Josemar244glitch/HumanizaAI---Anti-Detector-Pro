@@ -3,7 +3,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import Header from './Header';
 import ModeSelector from './ModeSelector';
 import Login from './Login';
-import ApiKeySetup from './ApiKeySetup';
 import CameraView from './CameraView';
 import { AppMode, GroundingSource } from '../types';
 import { humanizeText, searchWithGoogle, detectAI, extractTextFromImage, AIDetectionResult } from '../services/geminiService';
@@ -23,7 +22,6 @@ const App: React.FC = () => {
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
   const [detectionResult, setDetectionResult] = useState<AIDetectionResult | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [apiKey, setApiKey] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -45,11 +43,6 @@ const App: React.FC = () => {
       document.documentElement.classList.add('dark');
     }
 
-    const storedApiKey = sessionStorage.getItem('gemini_api_key');
-    if (storedApiKey) {
-        setApiKey(storedApiKey);
-    }
-
     if (isSupabaseConfigured()) {
       authService.getSession().then((session) => {
         if (session?.user) setUser(session.user);
@@ -63,11 +56,6 @@ const App: React.FC = () => {
       if (localUser) setUser(JSON.parse(localUser));
     }
   }, []);
-  
-  const handleApiKeySet = (key: string) => {
-    sessionStorage.setItem('gemini_api_key', key);
-    setApiKey(key);
-  };
 
   const toggleDarkMode = () => {
     const newMode = !isDarkMode;
@@ -158,6 +146,7 @@ const App: React.FC = () => {
   const handleDetectAI = async () => {
     if (!inputText.trim()) return;
     setIsAnalyzing(true);
+    setDetectionResult(null);
     try {
       const result = await detectAI(inputText);
       setDetectionResult(result);
@@ -263,10 +252,6 @@ const App: React.FC = () => {
   
   const isSearchMode = activeMode === AppMode.SEARCH;
   
-  if (!apiKey) {
-    return <ApiKeySetup onApiKeySet={handleApiKeySet} />;
-  }
-
   if (!user) return <Login onLogin={setUser} />;
 
   return (
@@ -381,7 +366,20 @@ const App: React.FC = () => {
                   </button>
                 </div>
                 {!isSearchMode && (
-                  <button onClick={handleDetectAI} disabled={isAnalyzing || !inputText.trim()} className="text-[11px] font-black uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400 hover:scale-105 transition-all disabled:opacity-30">Executar Análise</button>
+                   <button 
+                     onClick={handleDetectAI} 
+                     disabled={isAnalyzing || !inputText.trim()} 
+                     className="px-5 py-3 flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400 hover:scale-105 transition-all disabled:opacity-30 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
+                   >
+                     {isAnalyzing ? (
+                       <>
+                         <div className="w-4 h-4 border-2 border-indigo-400/50 border-t-indigo-400 rounded-full animate-spin"></div>
+                         Analisando...
+                       </>
+                     ) : (
+                       'Verificar Texto IA'
+                     )}
+                   </button>
                 )}
               </div>
               <div className="relative flex-1 min-h-[500px]">

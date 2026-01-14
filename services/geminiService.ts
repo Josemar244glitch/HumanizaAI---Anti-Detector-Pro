@@ -3,6 +3,9 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { SYSTEM_PROMPT, MODE_MAPPING, DETECTION_PROMPT, SEARCH_PROMPT } from "../constants";
 import { AppMode, GroundingSource } from "../types";
 
+// A chave de API foi permanentemente integrada para configuração automática.
+const GEMINI_API_KEY = "AIzaSyB2kdRGw81vM73nqJ7l_koisa9kE2UqEME";
+
 export interface AIDetectionResult {
   score: number;
   label: string;
@@ -15,11 +18,10 @@ export interface ServiceResult {
 }
 
 const getAiClient = (): GoogleGenAI => {
-    const apiKey = sessionStorage.getItem('gemini_api_key');
-    if (!apiKey) {
-        throw new Error("A chave de API do Google Gemini não foi configurada.");
+    if (!GEMINI_API_KEY) {
+        throw new Error("A chave de API do Google Gemini não foi configurada no código-fonte.");
     }
-    return new GoogleGenAI({ apiKey });
+    return new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 };
 
 export const humanizeText = async (text: string, mode: AppMode): Promise<ServiceResult> => {
